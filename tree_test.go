@@ -116,12 +116,13 @@ func TestTree(t *testing.T) {
 	err = tree.Add(node4, node3)
 	assert.NoError(t, err)
 
-	err = tree.Delete(node2)
-	assert.NoError(t, err)
-
 	descendants, ok = tree.Descendants(node1)
 	assert.True(t, ok)
-	assert.Empty(t, descendants)
+	assert.NotEmpty(t, descendants)
+	assert.EqualValues(t, 3, len(descendants))
+
+	err = tree.Delete(node2)
+	assert.NoError(t, err)
 
 	all := tree.Nodes()
 	assert.NotEmpty(t, all)
