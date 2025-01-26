@@ -32,11 +32,6 @@ type value[T any] struct {
 	data Node[T]
 }
 
-// newPidValue creates an instance of pidValue
-func newValue[T any](data Node[T]) *value[T] {
-	return &value[T]{data: data}
-}
-
 // Data returns the actual pidValue value
 func (v *value[T]) Data() Node[T] {
 	return v.data

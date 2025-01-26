@@ -58,11 +58,28 @@ func TestTree(t *testing.T) {
 	assert.EqualValues(t, node1.ID(), ancestors[0].ID())
 	assert.EqualValues(t, root.ID(), ancestors[1].ID())
 
+	rogue := newTestNode("rogue", "rogue")
+	err = tree.Add(node1, rogue)
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrParentNodeNotFound)
+
+	ancestors, ok = tree.Ancestors(rogue)
+	assert.False(t, ok)
+	assert.Nil(t, ancestors)
+
 	descendants, ok := tree.Descendants(node1)
 	assert.True(t, ok)
 	assert.NotEmpty(t, descendants)
 	assert.Len(t, descendants, 1)
 	assert.EqualValues(t, node2.ID(), descendants[0].ID())
+
+	descendants, ok = tree.Descendants(rogue)
+	assert.False(t, ok)
+	assert.Empty(t, descendants)
+
+	err = tree.Delete(rogue)
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrNotFound)
 
 	actual := tree.Root()
 	assert.NotNil(t, actual)
@@ -90,6 +107,14 @@ func TestTree(t *testing.T) {
 	parent, ok = tree.ParentAt(node2, 2)
 	assert.False(t, ok)
 	assert.Nil(t, parent)
+
+	node3 := newTestNode("node3", "node3")
+	err = tree.Add(node3, node2)
+	assert.NoError(t, err)
+
+	node4 := newTestNode("node4", "node4")
+	err = tree.Add(node4, node3)
+	assert.NoError(t, err)
 
 	err = tree.Delete(node2)
 	assert.NoError(t, err)
