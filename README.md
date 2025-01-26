@@ -2,6 +2,31 @@
 
 Go Effortless Hierarchical Data Management with a Thread-Safe Tree Structure.
 
+```
+root
+├── node1
+│   ├── subnode1
+│   │   ├── sub-subnode1
+│   │   └── sub-subnode2
+│   ├── subnode2
+│   │   └── sub-subnode3
+│   └── subnode3
+├── node2
+│   ├── subnode4
+│   └── subnode5
+├── node3
+│   ├── subnode6
+│   │   ├── sub-subnode4
+│   │   └── sub-subnode5
+│   ├── subnode7
+│   └── subnode8
+└── node4
+    ├── subnode9
+    │   └── sub-subnode6
+    └── subnode10
+
+```
+
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Tochemey/gotree/build.yml)
 ![Codecov](https://img.shields.io/codecov/c/github/tochemey/gotree)
 
