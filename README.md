@@ -1,6 +1,19 @@
 # gotree
 
-Go Effortless Hierarchical Data Management with a Thread-Safe Tree Structure.
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Tochemey/gotree/build.yml)
+![Codecov](https://img.shields.io/codecov/c/github/tochemey/gotree)
+[![GitHub go.mod Go version](https://badges.chse.dev/github/go-mod/go-version/Tochemey/gotree)](https://go.dev/doc/install)
+
+Simple and thread-safe [Go](https://go.dev/) Tree library.
+
+## Overview
+
+The GoTree library is a flexible and thread-safe implementation of a tree-like data structure in Go. 
+It allows you to organize and manage hierarchical data with ease. 
+Nodes in the tree can have an arbitrary number of children, and the library provides various methods for querying, manipulating, and traversing the tree structure. 
+
+This library supports concurrent access and manipulation, making it ideal for multi-threaded applications.
+With this library, you can build structures such as organizational charts, decision trees, file systems, or any other hierarchical structure that requires efficient operations like adding, deleting, and finding nodes.
 
 ```
 root
@@ -24,20 +37,7 @@ root
     ├── subnode9
     │   └── sub-subnode6
     └── subnode10
-
 ```
-
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Tochemey/gotree/build.yml)
-![Codecov](https://img.shields.io/codecov/c/github/tochemey/gotree)
-
-## Overview
-
-The GoTree library is a flexible and thread-safe implementation of a tree-like data structure in Go. 
-It allows you to organize and manage hierarchical data with ease. 
-Nodes in the tree can have an arbitrary number of children, and the library provides various methods for querying, manipulating, and traversing the tree structure. 
-
-This library supports concurrent access and manipulation, making it ideal for multi-threaded applications.
-With this library, you can build structures such as organizational charts, decision trees, file systems, or any other hierarchical structure that requires efficient operations like adding, deleting, and finding nodes.
 
 ## Features:
 
