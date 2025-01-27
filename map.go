@@ -25,7 +25,6 @@
 package gotree
 
 import (
-	"crypto/sha1"
 	"hash/fnv"
 	"sync"
 )
@@ -105,12 +104,12 @@ func (s ShardedMap) getShard(key string) *Shard {
 	return s[int(hash)]
 }
 
-// shardIndex returns the Shard index
-func (s ShardedMap) shardIndex(key string) int {
-	checksum := sha1.Sum([]byte(key))
-	n := int(checksum[15])
-	return n % len(s)
-}
+//// shardIndex returns the Shard index
+//func (s ShardedMap) shardIndex(key string) int {
+//	checksum := sha1.Sum([]byte(key))
+//	n := int(checksum[15])
+//	return n % len(s)
+//}
 
 func fnv64(key string) uint64 {
 	hash := fnv.New64()
