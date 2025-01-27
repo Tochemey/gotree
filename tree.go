@@ -25,13 +25,13 @@
 package gotree
 
 import (
+	"runtime"
 	"sort"
 	"sync"
 	"sync/atomic"
 )
 
-// TODO: make this configurable
-const numShards = 64
+const maxShards = 1024
 
 // Tree defines and implements a thread-safe, flexible Tree-like data structure.
 //
@@ -559,6 +559,7 @@ func (x *Tree[T]) Nodes() []Node[T] {
 //     the Add method or other Tree methods.
 //   - The Tree can handle nodes of any type, allowing flexible use cases for different data types.
 func NewTree[T any]() *Tree[T] {
+	numShards := determineShards()
 	return &Tree[T]{
 		nodes:   NewShardedMap(numShards),
 		parents: NewShardedMap(numShards),
@@ -635,4 +636,14 @@ func filterOutChild[T any](children *Slice[*treeNode[T]], childID string) *Slice
 		}
 	}
 	return children
+}
+
+// determineShards returns the total number of shards
+// to use
+func determineShards() uint64 {
+	optimalShards := runtime.NumCPU() * 4
+	if optimalShards > maxShards {
+		return uint64(maxShards)
+	}
+	return uint64(optimalShards)
 }
