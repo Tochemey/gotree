@@ -44,7 +44,7 @@ type treeNode[T any] struct {
 	// Value represents the actual treeNode value
 	Value atomic.Pointer[value[T]]
 	// Descendants hold the list of descendants
-	Descendants *safeSlice[*treeNode[T]]
+	Descendants *Slice[*treeNode[T]]
 }
 
 // SetValue sets a node value
@@ -54,6 +54,5 @@ func (x *treeNode[T]) SetValue(v *value[T]) {
 
 // GetValue returns the underlying value of the node
 func (x *treeNode[T]) GetValue() Node[T] {
-	v := x.Value.Load()
-	return v.Data()
+	return x.Value.Load().Data()
 }

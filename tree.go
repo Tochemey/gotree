@@ -66,8 +66,8 @@ const numShards = 64
 // - The Tree structure is optimized for efficient addition and traversal of Nodes.
 // - Use thread-safe methods (e.g., Add, Delete) when performing operations in concurrent environments.
 type Tree[T any] struct {
-	nodes      *maps
-	parents    *maps
+	nodes      ShardedMap
+	parents    ShardedMap
 	nodesPool  *sync.Pool
 	valuesPool *sync.Pool
 	size       atomic.Int64
@@ -560,12 +560,12 @@ func (x *Tree[T]) Nodes() []Node[T] {
 //   - The Tree can handle nodes of any type, allowing flexible use cases for different data types.
 func NewTree[T any]() *Tree[T] {
 	return &Tree[T]{
-		nodes:   newMaps(numShards),
-		parents: newMaps(numShards),
+		nodes:   NewShardedMap(numShards),
+		parents: NewShardedMap(numShards),
 		nodesPool: &sync.Pool{
 			New: func() any {
 				return &treeNode[T]{
-					Descendants: newSlice[*treeNode[T]](),
+					Descendants: NewSlice[*treeNode[T]](),
 				}
 			},
 		},
@@ -614,7 +614,7 @@ func (x *Tree[T]) ancestorAt(node Node[T], level int) (*treeNode[T], bool) {
 
 // collectDescendants collects all the descendants and grand children
 func collectDescendants[T any](node *treeNode[T]) []*treeNode[T] {
-	output := newSlice[*treeNode[T]]()
+	output := NewSlice[*treeNode[T]]()
 	var recursive func(*treeNode[T])
 	recursive = func(currentNode *treeNode[T]) {
 		for _, child := range currentNode.Descendants.Items() {
@@ -627,7 +627,7 @@ func collectDescendants[T any](node *treeNode[T]) []*treeNode[T] {
 }
 
 // filterOutChild removes the node with the given ID from the Children slice.
-func filterOutChild[T any](children *safeSlice[*treeNode[T]], childID string) *safeSlice[*treeNode[T]] {
+func filterOutChild[T any](children *Slice[*treeNode[T]], childID string) *Slice[*treeNode[T]] {
 	for i, child := range children.Items() {
 		if child.ID == childID {
 			children.Delete(i)

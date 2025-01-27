@@ -72,7 +72,6 @@ type Node[T any] interface {
 	// ID returns the unique identifier of the Node.
 	// The ID must be unique within the context of the Tree.
 	ID() string
-
 	// Value returns the value associated with the Node.
 	// The type of the value is defined by the generic type T.
 	Value() T

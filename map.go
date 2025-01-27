@@ -25,70 +25,91 @@
 package gotree
 
 import (
+	"crypto/sha1"
 	"hash/fnv"
 	"sync"
 )
 
-// maps is a concurrent map with sharding for scalability
-type maps struct {
-	shards    []*sync.Map
-	numShards uint64
+// Shard defines a Shard
+type Shard struct {
+	sync.RWMutex
+	m map[string]any
 }
 
-// newMaps creates an instance of maps
-func newMaps(totalShards uint64) *maps {
-	shards := make([]*sync.Map, totalShards)
-	for i := range shards {
-		shards[i] = &sync.Map{}
-	}
-	return &maps{
-		shards:    shards,
-		numShards: totalShards,
-	}
-}
+// ShardedMap defines a concurrent map with sharding for
+// scalability
+type ShardedMap []*Shard
 
-// getShard returns the given shard for a given key
-func (s *maps) getShard(key string) *sync.Map {
-	hash := fnv64(key) % s.numShards
-	return s.shards[hash]
+// NewShardedMap creates an instance of ShardedMap
+func NewShardedMap(shardsCount uint64) ShardedMap {
+	shards := make([]*Shard, shardsCount)
+	for i := range shardsCount {
+		shards[i] = &Shard{
+			m: make(map[string]any),
+		}
+	}
+	return shards
 }
 
 // Load returns the value of a given key
-func (s *maps) Load(key string) (any, bool) {
+func (s ShardedMap) Load(key string) (any, bool) {
 	shard := s.getShard(key)
-	return shard.Load(key)
+	shard.RLock()
+	val, ok := shard.m[key]
+	shard.RUnlock()
+	return val, ok
 }
 
 // Store adds a key/value pair to the sharded map
-func (s *maps) Store(key string, value any) {
+func (s ShardedMap) Store(key string, value any) {
 	shard := s.getShard(key)
-	shard.Store(key, value)
+	shard.Lock()
+	shard.m[key] = value
+	shard.Unlock()
 }
 
 // Delete removes a given key from the sharded map
-func (s *maps) Delete(key string) {
+func (s ShardedMap) Delete(key string) {
 	shard := s.getShard(key)
-	shard.Delete(key)
+	shard.Lock()
+	delete(shard.m, key)
+	shard.Unlock()
 }
 
-// Range given a function iterate over the sharded ma[
-func (s *maps) Range(f func(key, value any) bool) {
-	for i := 0; i < int(s.numShards); i++ {
-		shard := s.shards[i]
-		shard.Range(f)
+// Range given a function iterate over the sharded map
+func (s ShardedMap) Range(f func(key, value any) bool) {
+	for i := 0; i < len(s); i++ {
+		shard := s[i]
+		shard.RLock()
+		for k, v := range shard.m {
+			f(k, v)
+		}
+		shard.RUnlock()
 	}
 }
 
 // Reset resets the sharded map
-func (s *maps) Reset() {
-	// Reset each shard's map
-	for i := 0; i < int(s.numShards); i++ {
-		shard := s.shards[i]
-		shard.Range(func(key, _ any) bool {
-			shard.Delete(key) // Clear the entry
-			return true
-		})
+func (s ShardedMap) Reset() {
+	// Reset each Shard's map
+	for i := 0; i < len(s); i++ {
+		shard := s[i]
+		shard.Lock()
+		shard.m = make(map[string]any)
+		shard.Unlock()
 	}
+}
+
+// getShard returns the given Shard for a given key
+func (s ShardedMap) getShard(key string) *Shard {
+	hash := fnv64(key) % uint64(len(s))
+	return s[int(hash)]
+}
+
+// shardIndex returns the Shard index
+func (s ShardedMap) shardIndex(key string) int {
+	checksum := sha1.Sum([]byte(key))
+	n := int(checksum[15])
+	return n % len(s)
 }
 
 func fnv64(key string) uint64 {

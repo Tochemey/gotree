@@ -25,9 +25,13 @@
 package gotree
 
 import (
+	"fmt"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTree(t *testing.T) {
@@ -128,5 +132,53 @@ func TestTree(t *testing.T) {
 	assert.NotEmpty(t, all)
 	assert.Len(t, all, 2)
 
+	tree.Reset()
+}
+
+func TestMultithreading(t *testing.T) {
+	tree := NewTree[string]()
+	root := newTestNode("root", "root")
+	err := tree.Add(root, nil)
+	assert.NoError(t, err)
+	assert.EqualValues(t, 1, tree.Size())
+
+	numWorkers := 100
+	wg := sync.WaitGroup{}
+
+	// tree.Add workers
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			id := fmt.Sprintf("%d", i)
+			err := tree.Add(newTestNode(id, id), root)
+			require.NoError(t, err)
+		}()
+	}
+	wg.Wait()
+
+	descendants, ok := tree.Descendants(root)
+	assert.True(t, ok)
+	assert.NotEmpty(t, descendants)
+	assert.Len(t, descendants, numWorkers)
+
+	tree.Reset()
+}
+
+func BenchmarkAdd(b *testing.B) {
+	tree := NewTree[string]()
+	root := newTestNode("root", "root")
+	_ = tree.Add(root, nil)
+	var counter atomic.Int32
+	b.ResetTimer()
+	b.ReportAllocs()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			counter.Add(1)
+			id := fmt.Sprintf("%d", counter.Load())
+			_ = tree.Add(newTestNode(id, id), root)
+		}
+	})
+	b.StopTimer()
 	tree.Reset()
 }
