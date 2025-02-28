@@ -52,4 +52,6 @@ func TestSlice(t *testing.T) {
 	assert.Zero(t, sl.Get(4))
 	sl.Reset()
 	assert.Zero(t, sl.Len())
+	// remove the element at index 1
+	sl.Delete(1)
 }

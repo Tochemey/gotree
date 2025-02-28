@@ -77,7 +77,7 @@ func (s ShardedMap) Delete(key string) {
 
 // Range given a function iterate over the sharded map
 func (s ShardedMap) Range(f func(key, value any) bool) {
-	for i := 0; i < len(s); i++ {
+	for i := range s {
 		shard := s[i]
 		shard.RLock()
 		for k, v := range shard.m {
@@ -90,7 +90,7 @@ func (s ShardedMap) Range(f func(key, value any) bool) {
 // Reset resets the sharded map
 func (s ShardedMap) Reset() {
 	// Reset each Shard's map
-	for i := 0; i < len(s); i++ {
+	for i := range s {
 		shard := s[i]
 		shard.Lock()
 		shard.m = make(map[string]any)

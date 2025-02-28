@@ -1,7 +1,7 @@
 # gotree
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Tochemey/gotree/build.yml)
-![Codecov](https://img.shields.io/codecov/c/github/tochemey/gotree)
+[![codecov](https://codecov.io/gh/Tochemey/gotree/graph/badge.svg?token=34NrnhK2mD)](https://codecov.io/gh/Tochemey/gotree)
 [![GitHub go.mod Go version](https://badges.chse.dev/github/go-mod/go-version/Tochemey/gotree)](https://go.dev/doc/install)
 
 Simple and thread-safe [Go](https://go.dev/) Tree library.
